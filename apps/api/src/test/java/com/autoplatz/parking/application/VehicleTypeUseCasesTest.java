@@ -1,9 +1,11 @@
 package com.autoplatz.parking.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.autoplatz.parking.domain.VehicleType;
 import com.autoplatz.parking.domain.VehicleTypeName;
+import com.autoplatz.shared.domain.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +43,29 @@ class VehicleTypeUseCasesTest {
     new SeedDefaultVehicleTypes(types).execute();
 
     assertThat(new ListVehicleTypes(types).execute()).extracting(t -> t.name().value()).containsExactly("Truck");
+  }
+
+  @Test
+  @DisplayName("REQ-003 SCN-003: a type with a unique name is added active and the entry form offers it")
+  void anAddedTypeBecomesAvailableInTheEntryForm() {
+    new SeedDefaultVehicleTypes(types).execute();
+
+    VehicleType truck = new AddVehicleType(types).execute("Truck");
+
+    assertThat(truck.name().value()).isEqualTo("Truck");
+    assertThat(truck.active()).isTrue();
+    assertThat(new ListVehicleTypes(types).execute())
+        .filteredOn(t -> t.name().value().equals("Truck")).singleElement().matches(VehicleType::active);
+    assertThat(new ListAvailableVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactlyInAnyOrder("Car", "Motorcycle", "Van", "Truck");
+  }
+
+  @Test
+  @DisplayName("REQ-003: a type needs a non-empty name")
+  void anEmptyNameIsNotAdded() {
+    assertThatThrownBy(() -> new AddVehicleType(types).execute("  "))
+        .isInstanceOf(DomainException.class).hasFieldOrPropertyWithValue("code", "invalid_vehicle_type_name");
+    assertThat(new ListVehicleTypes(types).execute()).isEmpty();
   }
 
   @Test

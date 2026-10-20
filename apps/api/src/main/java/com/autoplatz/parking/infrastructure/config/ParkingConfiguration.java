@@ -1,5 +1,6 @@
 package com.autoplatz.parking.infrastructure.config;
 
+import com.autoplatz.parking.application.AddVehicleType;
 import com.autoplatz.parking.application.ListAvailableVehicleTypes;
 import com.autoplatz.parking.application.ListVehicleTypes;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
@@ -19,6 +20,11 @@ class ParkingConfiguration {
   @Bean
   ListVehicleTypes listVehicleTypes(VehicleTypeRepository types) {
     return new ListVehicleTypes(types);
+  }
+
+  @Bean
+  AddVehicleType addVehicleType(VehicleTypeRepository types) {
+    return new AddVehicleType(types);
   }
 
   @Bean
