@@ -1,6 +1,7 @@
 package com.autoplatz.shared.infrastructure.web;
 
 import com.autoplatz.shared.domain.DomainException;
+import com.autoplatz.shared.domain.MissingRequiredFields;
 import java.net.URI;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -26,7 +27,11 @@ class ProblemDetailsHandler {
       case CONFLICT -> HttpStatus.CONFLICT;
       case FORBIDDEN -> HttpStatus.FORBIDDEN;
     };
-    return problem(status, e.code(), e.getMessage());
+    ProblemDetail problem = problem(status, e.code(), e.getMessage());
+    if (e instanceof MissingRequiredFields missing) {
+      problem.setProperty("fields", missing.fields());
+    }
+    return problem;
   }
 
   @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,

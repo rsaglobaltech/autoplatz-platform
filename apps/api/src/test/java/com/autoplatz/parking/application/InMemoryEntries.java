@@ -3,6 +3,7 @@ package com.autoplatz.parking.application;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.domain.Entry;
 import com.autoplatz.parking.domain.EntryId;
+import com.autoplatz.parking.domain.LicensePlate;
 import com.autoplatz.parking.domain.VehicleTypeId;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,7 +20,15 @@ class InMemoryEntries implements EntryRepository {
   public List<Entry> findAll() { return List.copyOf(entries.values()); }
 
   @Override
+  public List<Entry> findInside() { return entries.values().stream().filter(Entry::isOpen).toList(); }
+
+  @Override
   public boolean anyWithVehicleType(VehicleTypeId type) {
     return entries.values().stream().anyMatch(e -> e.vehicleType().equals(type));
+  }
+
+  @Override
+  public boolean anyOpenWithLicensePlate(LicensePlate plate) {
+    return entries.values().stream().anyMatch(e -> e.isOpen() && plate.equals(e.licensePlate()));
   }
 }

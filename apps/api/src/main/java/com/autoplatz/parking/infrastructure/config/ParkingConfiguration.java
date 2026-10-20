@@ -5,9 +5,13 @@ import com.autoplatz.parking.application.DeleteVehicleType;
 import com.autoplatz.parking.application.ListAvailableVehicleTypes;
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListVehicleTypes;
+import com.autoplatz.parking.application.ListVehiclesInGarage;
+import com.autoplatz.parking.application.OpenEntryForm;
+import com.autoplatz.parking.application.RegisterEntry;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.application.port.VehicleTypeRepository;
+import java.time.Clock;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +40,16 @@ class ParkingConfiguration {
   }
 
   @Bean
+  OpenEntryForm openEntryForm(ListAvailableVehicleTypes listAvailableVehicleTypes, Clock clock) {
+    return new OpenEntryForm(listAvailableVehicleTypes, clock);
+  }
+
+  @Bean
+  RegisterEntry registerEntry(EntryRepository entries) {
+    return new RegisterEntry(entries);
+  }
+
+  @Bean
   DeleteVehicleType deleteVehicleType(VehicleTypeRepository types, EntryRepository entries) {
     return new DeleteVehicleType(types, entries);
   }
@@ -43,6 +57,11 @@ class ParkingConfiguration {
   @Bean
   ListEntryHistory listEntryHistory(EntryRepository entries, VehicleTypeRepository types) {
     return new ListEntryHistory(entries, types);
+  }
+
+  @Bean
+  ListVehiclesInGarage listVehiclesInGarage(EntryRepository entries, VehicleTypeRepository types) {
+    return new ListVehiclesInGarage(entries, types);
   }
 
   /** Runs the seeding use case when the system starts; what it seeds is the use case's business. */

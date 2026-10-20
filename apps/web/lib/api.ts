@@ -1,5 +1,12 @@
 import "server-only";
-import type { Task, VehicleType } from "@autoplatz-platform/shared";
+import type {
+  EntryForm,
+  RegisterEntryRequest,
+  RegisteredEntry,
+  Task,
+  VehicleInGarage,
+  VehicleType,
+} from "@autoplatz-platform/shared";
 
 /**
  * The API's base URL. In development it defaults to the local API; in
@@ -24,6 +31,8 @@ export class ApiError extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    /** The fields the problem is about (`missing_required_fields`), if any. */
+    readonly fields: string[] = [],
   ) {
     super(message);
   }
@@ -45,6 +54,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       res.status,
       problem.code ?? "unexpected",
       problem.detail ?? res.statusText,
+      Array.isArray(problem.fields) ? problem.fields : [],
     );
   }
   if (res.status === 204) return undefined as T;
@@ -73,5 +83,12 @@ export const api = {
   deleteVehicleType: (id: string) =>
     call<void>(`/api/vehicle-types/${encodeURIComponent(id)}`, {
       method: "DELETE",
+    }),
+  entryForm: () => call<EntryForm>("/api/entries/form"),
+  vehiclesInGarage: () => call<VehicleInGarage[]>("/api/entries/inside"),
+  registerEntry: (request: RegisterEntryRequest) =>
+    call<RegisteredEntry>("/api/entries", {
+      method: "POST",
+      body: JSON.stringify(request),
     }),
 };
