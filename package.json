@@ -19,10 +19,10 @@
     "packages/*"
   ],
   "devDependencies": {
-    "eslint": "^10.12.0",
     "@eslint/js": "^10.0.0",
-    "typescript-eslint": "^8.71.1",
+    "@rsaglobaltech/specgate": "file:vendor/specgate-ticket-source.tgz",
+    "eslint": "^10.12.0",
     "prettier": "^3.6.2",
-    "@rsaglobaltech/specgate": "file:vendor/specgate-ticket-source.tgz"
+    "typescript-eslint": "^8.71.1"
   }
 }
