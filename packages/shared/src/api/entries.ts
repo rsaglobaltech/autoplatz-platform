@@ -20,6 +20,15 @@ export interface RegisterEntryRequest {
   vehicleTypeId: string;
 }
 
+/** What GET /api/entries/inside returns (VehicleInGarageResponse): a vehicle currently in the garage (REQ-017). */
+export interface VehicleInGarage {
+  id: string;
+  /** Null only for an entry recorded before plates were. */
+  licensePlate: string | null;
+  vehicleType: string;
+  status: "inside";
+}
+
 /** What POST /api/entries returns (RegisteredEntryResponse): the plate as stored, uppercase without spaces. */
 export interface RegisteredEntry {
   id: string;

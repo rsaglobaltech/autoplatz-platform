@@ -5,6 +5,7 @@ import com.autoplatz.parking.application.DeleteVehicleType;
 import com.autoplatz.parking.application.ListAvailableVehicleTypes;
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListVehicleTypes;
+import com.autoplatz.parking.application.ListVehiclesInGarage;
 import com.autoplatz.parking.application.OpenEntryForm;
 import com.autoplatz.parking.application.RegisterEntry;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
@@ -56,6 +57,11 @@ class ParkingConfiguration {
   @Bean
   ListEntryHistory listEntryHistory(EntryRepository entries, VehicleTypeRepository types) {
     return new ListEntryHistory(entries, types);
+  }
+
+  @Bean
+  ListVehiclesInGarage listVehiclesInGarage(EntryRepository entries, VehicleTypeRepository types) {
+    return new ListVehiclesInGarage(entries, types);
   }
 
   /** Runs the seeding use case when the system starts; what it seeds is the use case's business. */

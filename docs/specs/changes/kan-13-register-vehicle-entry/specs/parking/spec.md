@@ -95,7 +95,7 @@ store no new entry.
 
 ### Requirement: REQ-017 — Valid entry is stored as inside
 
-<!-- specgate:trace actor=Administrator kind=functional -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=functional -->
 
 The system SHALL store a valid vehicle entry in the database with status
 "inside" and show it in the list of vehicles currently in the garage.

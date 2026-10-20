@@ -2,6 +2,8 @@ package com.autoplatz.parking.infrastructure.web;
 
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListEntryHistory.EntryInHistory;
+import com.autoplatz.parking.application.ListVehiclesInGarage;
+import com.autoplatz.parking.application.ListVehiclesInGarage.VehicleInGarage;
 import com.autoplatz.parking.application.OpenEntryForm;
 import com.autoplatz.parking.application.RegisterEntry;
 import com.autoplatz.parking.domain.Entry;
@@ -44,6 +46,14 @@ class EntryController {
     }
   }
 
+  /** A vehicle currently in the garage (REQ-017); {@code status} as stored: {@code inside}. */
+  record VehicleInGarageResponse(String id, String licensePlate, String vehicleType, String status) {
+    static VehicleInGarageResponse of(VehicleInGarage v) {
+      return new VehicleInGarageResponse(v.entry().id().toString(), plateOf(v.entry().licensePlate()),
+          v.vehicleType().name().value(), v.entry().status().value());
+    }
+  }
+
   record EntryFormResponse(List<FieldResponse> fields) {
     /** {@code value}: what the field comes pre-filled with, as a local date-time to the minute; null if nothing. */
     record FieldResponse(String name, boolean required, List<OptionResponse> options, String value) {
@@ -66,17 +76,26 @@ class EntryController {
   private final ListEntryHistory listEntryHistory;
   private final OpenEntryForm openEntryForm;
   private final RegisterEntry registerEntry;
+  private final ListVehiclesInGarage listVehiclesInGarage;
 
-  EntryController(ListEntryHistory listEntryHistory, OpenEntryForm openEntryForm, RegisterEntry registerEntry) {
+  EntryController(ListEntryHistory listEntryHistory, OpenEntryForm openEntryForm, RegisterEntry registerEntry,
+      ListVehiclesInGarage listVehiclesInGarage) {
     this.listEntryHistory = listEntryHistory;
     this.openEntryForm = openEntryForm;
     this.registerEntry = registerEntry;
+    this.listVehiclesInGarage = listVehiclesInGarage;
   }
 
   @GetMapping
   @Operation(summary = "The entry history, each entry with its vehicle type, active or not")
   List<EntryResponse> history() {
     return listEntryHistory.execute().stream().map(EntryResponse::of).toList();
+  }
+
+  @GetMapping("/inside")
+  @Operation(summary = "The vehicles currently in the garage: the entries with status \"inside\"")
+  List<VehicleInGarageResponse> inside() {
+    return listVehiclesInGarage.execute().stream().map(VehicleInGarageResponse::of).toList();
   }
 
   @GetMapping("/form")

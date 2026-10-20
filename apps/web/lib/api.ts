@@ -4,6 +4,7 @@ import type {
   RegisterEntryRequest,
   RegisteredEntry,
   Task,
+  VehicleInGarage,
   VehicleType,
 } from "@autoplatz-platform/shared";
 
@@ -84,6 +85,7 @@ export const api = {
       method: "DELETE",
     }),
   entryForm: () => call<EntryForm>("/api/entries/form"),
+  vehiclesInGarage: () => call<VehicleInGarage[]>("/api/entries/inside"),
   registerEntry: (request: RegisterEntryRequest) =>
     call<RegisteredEntry>("/api/entries", {
       method: "POST",

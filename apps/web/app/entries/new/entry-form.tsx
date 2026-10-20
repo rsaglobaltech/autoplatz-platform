@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import type { EntryFormField } from "@autoplatz-platform/shared";
 import { registerEntry, type EntryFormState } from "./actions";
@@ -105,7 +106,10 @@ export function EntryForm({ fields }: { fields: EntryFormField[] }) {
       ) : null}
       {state.saved ? (
         <p role="status" className="text-sm text-green-700">
-          Entry saved.
+          Entry saved.{" "}
+          <Link href="/entries/inside" className="underline">
+            See the vehicles in the garage
+          </Link>
         </p>
       ) : null}
     </form>
