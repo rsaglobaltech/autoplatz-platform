@@ -7,6 +7,7 @@ import com.autoplatz.parking.domain.VehicleTypeName;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
@@ -31,6 +32,17 @@ class JdbcVehicleTypeRepository implements VehicleTypeRepository {
   @Override
   public List<VehicleType> findAll() {
     return jdbc.sql("SELECT * FROM vehicle_type ORDER BY name, id").query(JdbcVehicleTypeRepository::row).list();
+  }
+
+  @Override
+  public Optional<VehicleType> findById(VehicleTypeId id) {
+    return jdbc.sql("SELECT * FROM vehicle_type WHERE id = :id").param("id", id.value())
+        .query(JdbcVehicleTypeRepository::row).optional();
+  }
+
+  @Override
+  public void delete(VehicleTypeId id) {
+    jdbc.sql("DELETE FROM vehicle_type WHERE id = :id").param("id", id.value()).update();
   }
 
   private static VehicleType row(ResultSet rs, int n) throws SQLException {

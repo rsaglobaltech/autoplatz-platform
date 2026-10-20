@@ -70,7 +70,7 @@ validation message, and SHALL leave the catalog unchanged.
 
 ### Requirement: REQ-005 — A type in use is deactivated, not deleted
 
-<!-- specgate:trace actor=Administrator kind=business-rule -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=business-rule -->
 
 The system SHALL, when an administrator deletes a vehicle type that is used
 by at least one existing entry, deactivate the type instead of deleting it:

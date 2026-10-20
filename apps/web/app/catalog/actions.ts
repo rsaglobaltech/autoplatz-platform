@@ -27,3 +27,9 @@ export async function addVehicleType(
   revalidatePath("/catalog");
   return {};
 }
+
+/** REQ-005: the API decides whether the type is removed or, being in use, deactivated. */
+export async function deleteVehicleType(data: FormData): Promise<void> {
+  await api.deleteVehicleType(String(data.get("id") ?? ""));
+  revalidatePath("/catalog");
+}
