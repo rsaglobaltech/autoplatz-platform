@@ -1,0 +1,10 @@
+specgate_change_version: 1
+schema: spec-driven
+created: 2026-10-20
+rigor: lite
+skip_specs: false
+retire_capabilities: false
+req_range: [REQ-002, REQ-005]
+brief: docs/specs/changes/kan-14-vehicle-type-catalog/ticket.md
+ticket: KAN-14
+ticket_sha256: a2db6b41aebbf3ccacf634148f755d215b73f583e17a07d7e6094c4ebc731e98
