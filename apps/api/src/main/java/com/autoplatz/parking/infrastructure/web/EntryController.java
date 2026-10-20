@@ -3,14 +3,24 @@ package com.autoplatz.parking.infrastructure.web;
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListEntryHistory.EntryInHistory;
 import com.autoplatz.parking.application.OpenEntryForm;
+import com.autoplatz.parking.application.RegisterEntry;
+import com.autoplatz.parking.domain.Entry;
 import com.autoplatz.parking.domain.EntryForm;
 import com.autoplatz.parking.domain.EntryFormField;
+import com.autoplatz.parking.domain.LicensePlate;
+import com.autoplatz.parking.domain.VehicleTypeId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Inbound REST adapter: translates HTTP ⇄ use cases. */
@@ -18,9 +28,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/entries")
 @Tag(name = "entries")
 class EntryController {
-  record EntryResponse(String id, String vehicleType) {
+  /** {@code licensePlate}: null for an entry recorded before plates were. */
+  record EntryResponse(String id, String vehicleType, String licensePlate) {
     static EntryResponse of(EntryInHistory e) {
-      return new EntryResponse(e.entry().id().toString(), e.vehicleType().name().value());
+      return new EntryResponse(e.entry().id().toString(), e.vehicleType().name().value(),
+          plateOf(e.entry().licensePlate()));
+    }
+  }
+
+  record RegisterEntryRequest(@NotNull String licensePlate, @NotNull String vehicleTypeId) {}
+
+  record RegisteredEntryResponse(String id, String licensePlate, String vehicleTypeId) {
+    static RegisteredEntryResponse of(Entry e) {
+      return new RegisteredEntryResponse(e.id().toString(), plateOf(e.licensePlate()), e.vehicleType().toString());
     }
   }
 
@@ -45,10 +65,12 @@ class EntryController {
 
   private final ListEntryHistory listEntryHistory;
   private final OpenEntryForm openEntryForm;
+  private final RegisterEntry registerEntry;
 
-  EntryController(ListEntryHistory listEntryHistory, OpenEntryForm openEntryForm) {
+  EntryController(ListEntryHistory listEntryHistory, OpenEntryForm openEntryForm, RegisterEntry registerEntry) {
     this.listEntryHistory = listEntryHistory;
     this.openEntryForm = openEntryForm;
+    this.registerEntry = registerEntry;
   }
 
   @GetMapping
@@ -61,5 +83,17 @@ class EntryController {
   @Operation(summary = "The entry form: its fields, which are required, and the vehicle types it offers")
   EntryFormResponse form() {
     return EntryFormResponse.of(openEntryForm.execute());
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Save a vehicle entry; its license plate is stored uppercase without spaces")
+  RegisteredEntryResponse register(@Valid @RequestBody RegisterEntryRequest request) {
+    return RegisteredEntryResponse.of(
+        registerEntry.execute(request.licensePlate(), VehicleTypeId.of(request.vehicleTypeId())));
+  }
+
+  private static String plateOf(LicensePlate plate) {
+    return plate == null ? null : plate.value();
   }
 }
