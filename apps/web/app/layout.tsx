@@ -25,6 +25,9 @@ export default function RootLayout({
               <Link href="/tasks" className="hover:underline">
                 Tasks
               </Link>
+              <Link href="/catalog" className="hover:underline">
+                Catalog
+              </Link>
               <UserMenu />
             </div>
           </nav>

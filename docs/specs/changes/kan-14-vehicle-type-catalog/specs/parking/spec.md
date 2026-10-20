@@ -20,7 +20,7 @@ types Car, Motorcycle and Van in the catalog, each active.
 
 ### Requirement: REQ-003 — Add a vehicle type
 
-<!-- specgate:trace actor=Administrator kind=functional -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=functional -->
 
 The system SHALL let an administrator add a vehicle type with a unique,
 non-empty name from the catalog screen, and SHALL make the new type
