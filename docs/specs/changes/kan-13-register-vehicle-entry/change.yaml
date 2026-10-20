@@ -1,0 +1,11 @@
+specgate_change_version: 1
+schema: spec-driven
+created: 2026-10-20
+rigor: lite
+skip_specs: false
+retire_capabilities: false
+req_range: [REQ-012, REQ-017]
+scn_range: [SCN-022, SCN-039]
+brief: docs/specs/changes/kan-13-register-vehicle-entry/ticket.md
+ticket: KAN-13
+ticket_sha256: c083470c1dbd38c0e949c027046fff88c27ad366be70f3484a5070682c1aed96
