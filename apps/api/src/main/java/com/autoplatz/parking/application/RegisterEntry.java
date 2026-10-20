@@ -3,9 +3,13 @@ package com.autoplatz.parking.application;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.domain.Entry;
 import com.autoplatz.parking.domain.LicensePlate;
+import com.autoplatz.parking.domain.VehicleAlreadyInGarage;
 import com.autoplatz.parking.domain.VehicleTypeId;
 
-/** Use case (REQ-014): an administrator saves an entry; its plate is stored uppercase without spaces. */
+/**
+ * Use case (REQ-014): an administrator saves an entry; its plate is stored uppercase without spaces.
+ * A plate that already has an open entry is refused, and nothing is stored (REQ-016).
+ */
 public final class RegisterEntry {
   private final EntryRepository entries;
 
@@ -15,6 +19,7 @@ public final class RegisterEntry {
 
   public Entry execute(String licensePlate, VehicleTypeId vehicleType) {
     Entry entry = Entry.register(new LicensePlate(licensePlate), vehicleType);
+    if (entries.anyOpenWithLicensePlate(entry.licensePlate())) throw new VehicleAlreadyInGarage();
     entries.save(entry);
     return entry;
   }

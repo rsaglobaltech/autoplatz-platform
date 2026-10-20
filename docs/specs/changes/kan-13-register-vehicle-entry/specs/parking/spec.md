@@ -78,7 +78,7 @@ field.
 
 ### Requirement: REQ-016 — One open entry per plate
 
-<!-- specgate:trace actor=Administrator kind=business-rule -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=business-rule -->
 
 The system SHALL reject a new entry for a license plate that already has an
 open entry, with the message "Vehicle is already in the garage", and SHALL
