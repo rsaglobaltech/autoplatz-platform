@@ -1,6 +1,8 @@
 import "server-only";
 import type {
   EntryForm,
+  RegisterEntryRequest,
+  RegisteredEntry,
   Task,
   VehicleType,
 } from "@autoplatz-platform/shared";
@@ -28,6 +30,8 @@ export class ApiError extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    /** The fields the problem is about (`missing_required_fields`), if any. */
+    readonly fields: string[] = [],
   ) {
     super(message);
   }
@@ -49,6 +53,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       res.status,
       problem.code ?? "unexpected",
       problem.detail ?? res.statusText,
+      Array.isArray(problem.fields) ? problem.fields : [],
     );
   }
   if (res.status === 204) return undefined as T;
@@ -79,4 +84,9 @@ export const api = {
       method: "DELETE",
     }),
   entryForm: () => call<EntryForm>("/api/entries/form"),
+  registerEntry: (request: RegisterEntryRequest) =>
+    call<RegisteredEntry>("/api/entries", {
+      method: "POST",
+      body: JSON.stringify(request),
+    }),
 };

@@ -13,6 +13,11 @@ public record VehicleTypeId(UUID value) {
     }
   }
 
+  /** The id typed, or null when none was picked (empty or blank): a missing type is the entry's to refuse (REQ-015). */
+  public static VehicleTypeId ofPicked(String text) {
+    return text == null || text.isBlank() ? null : of(text);
+  }
+
   @Override
   public String toString() { return value.toString(); }
 }
