@@ -1,0 +1,6 @@
+package com.autoplatz.shared.application;
+
+/** Port: who is making the request. The adapter reads it from the OAuth2 token (or a local user without auth). */
+public interface CurrentUser {
+  String id();
+}

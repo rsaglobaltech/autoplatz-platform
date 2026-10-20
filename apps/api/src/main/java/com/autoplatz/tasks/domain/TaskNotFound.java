@@ -1,0 +1,11 @@
+package com.autoplatz.tasks.domain;
+
+import com.autoplatz.shared.domain.DomainException;
+
+public final class TaskNotFound extends DomainException {
+  private TaskNotFound(String id) {
+    super("task_not_found", Kind.NOT_FOUND, "Task " + id + " does not exist.");
+  }
+
+  public static TaskNotFound withId(Object id) { return new TaskNotFound(String.valueOf(id)); }
+}

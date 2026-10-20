@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "autoplatz-platform",
+  "scope": "@autoplatz-platform",
+  "platforms": ["web"],
+  "backend": "spring",
+  "javaPackage": "com.autoplatz",
+  "archunit": true,
+  "arch": "hexagonal",
+  "db": "postgres-docker",
+  "auth": "none",
+  "mailer": "console",
+  "design": "tailwind",
+  "ui": "own",
+  "edgeFunctions": false,
+  "eas": false,
+  "tests": ["unit", "integration"],
+  "extras": ["lint", "ci", "docker", "specgate", "render"],
+  "pm": "npm"
+}

@@ -1,0 +1,43 @@
+import { api } from "@/lib/api";
+import { completeTask } from "./actions";
+import { NewTaskForm } from "./new-task-form";
+
+export const dynamic = "force-dynamic";
+
+export default async function TasksPage() {
+  const tasks = await api.myTasks();
+  return (
+    <section className="space-y-6">
+      <h1 className="text-xl font-semibold">My tasks</h1>
+      <NewTaskForm />
+      {tasks.length === 0 ? (
+        <p className="text-sm text-gray-600">No tasks yet.</p>
+      ) : (
+        <ul className="divide-y divide-black/5 rounded-md border border-black/5 bg-surface">
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className="flex items-center justify-between gap-4 px-4 py-3"
+            >
+              <span className={task.done ? "text-gray-400 line-through" : ""}>
+                {task.title}
+              </span>
+              {task.done ? (
+                <span className="text-xs text-gray-500">Done</span>
+              ) : (
+                <form action={completeTask.bind(null, task.id)}>
+                  <button
+                    type="submit"
+                    className="text-sm text-brand-600 hover:underline"
+                  >
+                    Mark as done
+                  </button>
+                </form>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

@@ -1,0 +1,54 @@
+package com.autoplatz.shared.infrastructure.web;
+
+import com.autoplatz.shared.domain.DomainException;
+import java.net.URI;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+/**
+ * Every error comes out as RFC 9457 ({@code application/problem+json}) with a stable {@code code},
+ * including the ones Spring produces (unreadable body, unknown route or method).
+ */
+@RestControllerAdvice
+class ProblemDetailsHandler {
+  @ExceptionHandler(DomainException.class)
+  ProblemDetail domain(DomainException e) {
+    HttpStatus status = switch (e.kind()) {
+      case INVALID -> HttpStatus.UNPROCESSABLE_CONTENT;
+      case NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case CONFLICT -> HttpStatus.CONFLICT;
+      case FORBIDDEN -> HttpStatus.FORBIDDEN;
+    };
+    return problem(status, e.code(), e.getMessage());
+  }
+
+  @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
+      MethodArgumentTypeMismatchException.class})
+  ProblemDetail invalidRequest(Exception e) {
+    return problem(HttpStatus.BAD_REQUEST, "invalid_request", "The request cannot be read or is not valid.");
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  ProblemDetail notFound(NoResourceFoundException e) {
+    return problem(HttpStatus.NOT_FOUND, "route_not_found", "That route does not exist.");
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  ProblemDetail methodNotAllowed(HttpRequestMethodNotSupportedException e) {
+    return problem(HttpStatus.METHOD_NOT_ALLOWED, "method_not_allowed", "Method not allowed on that route.");
+  }
+
+  static ProblemDetail problem(HttpStatus status, String code, String detail) {
+    ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
+    problem.setType(URI.create("about:blank"));
+    problem.setProperty("code", code);
+    return problem;
+  }
+}

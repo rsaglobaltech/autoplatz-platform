@@ -1,0 +1,27 @@
+package com.autoplatz.tasks.application;
+
+import com.autoplatz.tasks.application.port.TaskRepository;
+import com.autoplatz.tasks.domain.Task;
+import com.autoplatz.tasks.domain.TaskId;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/** Test double for the port: use cases are tested without Spring or a database. */
+class InMemoryTasks implements TaskRepository {
+  private final Map<TaskId, Task> tasks = new HashMap<>();
+
+  @Override
+  public void save(Task task) { tasks.put(task.id(), task); }
+
+  @Override
+  public Optional<Task> findById(TaskId id) { return Optional.ofNullable(tasks.get(id)); }
+
+  @Override
+  public List<Task> findByOwner(String owner) {
+    return tasks.values().stream().filter(t -> t.ownedBy(owner)).sorted(Comparator.comparing(Task::createdAt).reversed())
+        .toList();
+  }
+}

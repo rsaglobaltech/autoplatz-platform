@@ -1,0 +1,16 @@
+package com.autoplatz.tasks.domain;
+
+import com.autoplatz.shared.domain.DomainException;
+
+/** Value object: a title of 1 to 120 characters, with no surrounding whitespace. */
+public record TaskTitle(String value) {
+  public static final int MAX = 120;
+
+  public TaskTitle {
+    value = value == null ? "" : value.strip();
+    if (value.isEmpty() || value.length() > MAX) {
+      throw new DomainException("invalid_title", DomainException.Kind.INVALID,
+          "The title must be between 1 and " + MAX + " characters.");
+    }
+  }
+}

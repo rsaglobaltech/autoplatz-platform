@@ -1,0 +1,28 @@
+{
+  "scripts": {
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "cd apps/api && ./mvnw -q -B verify",
+    "arch": "cd apps/api && ./mvnw -q -B test -Dtest=ArchitectureTest -Dsurefire.failIfNoSpecifiedTests=false",
+    "dev:api": "cd apps/api && ./mvnw spring-boot:run",
+    "test:web": "npm run typecheck --workspaces --if-present && npm run build --workspace apps/web",
+    "dev:web": "npm run dev --workspace apps/web",
+    "lint": "eslint .",
+    "spec": "specgate",
+    "spec:status": "specgate status",
+    "spec:check": "specgate check"
+  },
+  "name": "autoplatz-platform",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/web",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "eslint": "^10.12.0",
+    "@eslint/js": "^10.0.0",
+    "typescript-eslint": "^8.71.1",
+    "prettier": "^3.6.2",
+    "@rsaglobaltech/specgate": "^0.20.0"
+  }
+}

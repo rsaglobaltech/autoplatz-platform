@@ -1,0 +1,11 @@
+node_modules/
+.next/
+target/
+*.log
+.DS_Store
+.env
+.env.local
+.idea/
+*.iml
+.vscode/
+.quarkus/

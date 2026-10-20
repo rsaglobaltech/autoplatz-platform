@@ -1,0 +1,42 @@
+package com.autoplatz.tasks.application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.autoplatz.shared.application.CurrentUser;
+import com.autoplatz.tasks.domain.Task;
+import com.autoplatz.tasks.domain.TaskNotFound;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import org.junit.jupiter.api.Test;
+
+class TaskUseCasesTest {
+  private final InMemoryTasks tasks = new InMemoryTasks();
+  private final Clock clock = Clock.fixed(Instant.parse("2026-01-01T10:00:00Z"), ZoneOffset.UTC);
+  private String who = "ana";
+  private final CurrentUser user = () -> who;
+
+  @Test
+  void createAndListMine() {
+    Task t = new CreateTask(tasks, user, clock).execute("Call the customer");
+    who = "luis";
+    new CreateTask(tasks, user, clock).execute("Something else");
+    who = "ana";
+    assertThat(new ListMyTasks(tasks, user).execute()).extracting(Task::id).containsExactly(t.id());
+  }
+
+  @Test
+  void someoneElsesTaskDoesNotExistForMe() {
+    Task t = new CreateTask(tasks, user, clock).execute("Private");
+    who = "luis";
+    assertThatThrownBy(() -> new CompleteTask(tasks, user, clock).execute(t.id().toString()))
+        .isInstanceOf(TaskNotFound.class);
+  }
+
+  @Test
+  void completeMine() {
+    Task t = new CreateTask(tasks, user, clock).execute("Send the invoice");
+    assertThat(new CompleteTask(tasks, user, clock).execute(t.id().toString()).done()).isTrue();
+  }
+}

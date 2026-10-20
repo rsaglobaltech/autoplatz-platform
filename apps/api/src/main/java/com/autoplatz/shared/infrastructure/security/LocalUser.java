@@ -1,0 +1,13 @@
+package com.autoplatz.shared.infrastructure.security;
+
+import com.autoplatz.shared.application.CurrentUser;
+import org.springframework.stereotype.Component;
+
+/** No authentication (auth = none): every request belongs to the same local user. */
+@Component
+class LocalUser implements CurrentUser {
+  static final String ID = "local-user";
+
+  @Override
+  public String id() { return ID; }
+}

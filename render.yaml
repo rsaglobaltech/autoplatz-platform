@@ -1,0 +1,46 @@
+# Render Blueprint for autoplatz-platform (generated with forja).
+# Create it once: Render dashboard → New → Blueprint → this repository.
+# Render never builds on its own: the CI deploys main
+# through the deploy hooks once the tests and the specification pass. Copy each
+# service's deploy hook into the GitHub secrets RENDER_DEPLOY_HOOK_API and
+# RENDER_DEPLOY_HOOK_WEB (environment "production").
+services:
+  - type: web
+    name: autoplatz-platform-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    healthCheckPath: /actuator/health
+    autoDeploy: false
+    envVars:
+      # The database, by parts: the API builds its JDBC URL from them.
+      - key: DB_HOST
+        fromDatabase: { name: autoplatz-platform-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: autoplatz-platform-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: autoplatz-platform-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: autoplatz-platform-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: autoplatz-platform-db, property: password }
+      # The web app's public URL, e.g. https://autoplatz-platform-web.onrender.com
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+  - type: web
+    name: autoplatz-platform-web
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    autoDeploy: false
+    envVars:
+      # The API's public URL, e.g. https://autoplatz-platform-api.onrender.com
+      - key: API_URL
+        sync: false
+databases:
+  # Render's free database expires after 30 days; choose a paid plan to keep it.
+  - name: autoplatz-platform-db
+    plan: free
+    databaseName: autoplatz_platform

@@ -1,0 +1,63 @@
+package com.autoplatz.tasks.infrastructure.web;
+
+import com.autoplatz.tasks.application.CompleteTask;
+import com.autoplatz.tasks.application.CreateTask;
+import com.autoplatz.tasks.application.ListMyTasks;
+import com.autoplatz.tasks.domain.Task;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.time.Instant;
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+/** Inbound REST adapter: translates HTTP ⇄ use cases. */
+@RestController
+@RequestMapping("/api/tasks")
+@Tag(name = "tasks")
+class TaskController {
+  record CreateTaskRequest(@NotNull String title) {}
+
+  record TaskResponse(String id, String title, boolean done, Instant createdAt, Instant doneAt) {
+    static TaskResponse of(Task t) {
+      return new TaskResponse(t.id().toString(), t.title().value(), t.done(), t.createdAt(), t.doneAt());
+    }
+  }
+
+  private final CreateTask createTask;
+  private final ListMyTasks listMyTasks;
+  private final CompleteTask completeTask;
+
+  TaskController(CreateTask createTask, ListMyTasks listMyTasks, CompleteTask completeTask) {
+    this.createTask = createTask;
+    this.listMyTasks = listMyTasks;
+    this.completeTask = completeTask;
+  }
+
+  @GetMapping
+  @Operation(summary = "My tasks, newest first")
+  List<TaskResponse> mine() {
+    return listMyTasks.execute().stream().map(TaskResponse::of).toList();
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Create a task")
+  TaskResponse create(@Valid @RequestBody CreateTaskRequest request) {
+    return TaskResponse.of(createTask.execute(request.title()));
+  }
+
+  @PostMapping("/{id}/completion")
+  @Operation(summary = "Mark a task as done")
+  TaskResponse complete(@PathVariable String id) {
+    return TaskResponse.of(completeTask.execute(id));
+  }
+}

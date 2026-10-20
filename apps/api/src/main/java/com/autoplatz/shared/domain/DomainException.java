@@ -1,0 +1,22 @@
+package com.autoplatz.shared.domain;
+
+/**
+ * A business rule that is not met. The {@code code} is stable: it is what the API client sees
+ * (in the {@code code} field of the RFC 9457 response) and what the scenarios refer to.
+ */
+public class DomainException extends RuntimeException {
+  public enum Kind { INVALID, NOT_FOUND, CONFLICT, FORBIDDEN }
+
+  private final String code;
+  private final Kind kind;
+
+  public DomainException(String code, Kind kind, String message) {
+    super(message);
+    this.code = code;
+    this.kind = kind;
+  }
+
+  public String code() { return code; }
+
+  public Kind kind() { return kind; }
+}

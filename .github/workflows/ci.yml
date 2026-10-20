@@ -1,0 +1,94 @@
+# CI for autoplatz-platform (generated with forja). Runs on pushes to main and develop and on every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  api:
+    name: API (Spring Boot)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      # Domain, use case and API tests against a real PostgreSQL (Docker), real startup and ArchUnit.
+      - run: ./mvnw -B verify
+  web:
+    name: Web (Next.js)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Dependencies
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - run: npm run lint
+      - run: npm run test:web
+  spec:
+    name: Specification (Specgate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # The specification: requirements, scenarios and traceability. The tests already run in the other jobs.
+      - run: npx -y @rsaglobaltech/specgate@0.20.0 validate . --strict
+  deploy:
+    name: Deploy (Render)
+    # Only main, only once everything above passed. Render does not build on its own.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [api, web, spec]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to Render, API first, waiting for each
+        env:
+          API_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_API }}
+          WEB_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_WEB }}
+          # Optional: with it, the job waits for each deploy and fails when it fails.
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          deploy() {
+            label="$1"; hook="$2"
+            if [ -z "$hook" ]; then
+              echo "::error::$label: the deploy hook secret is not set: copy it from Render into the production environment's secrets."
+              exit 1
+            fi
+            response=$(curl -fsS -X POST "$hook")
+            if [ -z "$RENDER_API_KEY" ]; then
+              echo "::warning::$label: deploy started, not verified. Add the secret RENDER_API_KEY to wait for it."
+              return
+            fi
+            service=$(printf '%s' "$hook" | sed -nE 's#.*/deploy/(srv-[A-Za-z0-9]+).*#\1#p')
+            id=$(printf '%s' "$response" | jq -r '.deploy.id // .id // empty' 2>/dev/null)
+            if [ -z "$service" ] || [ -z "$id" ]; then
+              echo "::warning::$label: deploy started, but its id could not be read: not verified."
+              return
+            fi
+            for _ in $(seq 1 60); do
+              status=$(curl -fsS -H "Authorization: Bearer $RENDER_API_KEY" \
+                "https://api.render.com/v1/services/$service/deploys/$id" | jq -r '.status')
+              case "$status" in
+                live) echo "$label: live"; return ;;
+                build_failed|update_failed|canceled|deactivated)
+                  echo "::error::$label: the deploy ended $status. See it in the Render dashboard."
+                  exit 1 ;;
+              esac
+              sleep 15
+            done
+            echo "::error::$label: still $status after 15 minutes."
+            exit 1
+          }
+          deploy API "$API_HOOK"
+          deploy Web "$WEB_HOOK"

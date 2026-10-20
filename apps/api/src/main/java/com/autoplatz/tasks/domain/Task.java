@@ -1,0 +1,19 @@
+package com.autoplatz.tasks.domain;
+
+import com.autoplatz.shared.domain.DomainException;
+import java.time.Instant;
+
+/** Example aggregate: a user's task. Pure Java: no framework. */
+public record Task(TaskId id, String owner, TaskTitle title, boolean done, Instant createdAt, Instant doneAt) {
+
+  public static Task create(String owner, TaskTitle title, Instant now) {
+    return new Task(TaskId.random(), owner, title, false, now, null);
+  }
+
+  public boolean ownedBy(String user) { return owner.equals(user); }
+
+  public Task complete(Instant now) {
+    if (done) throw new DomainException("task_already_done", DomainException.Kind.CONFLICT, "The task is already done.");
+    return new Task(id, owner, title, true, createdAt, now);
+  }
+}
