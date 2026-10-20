@@ -8,7 +8,9 @@ export interface FormState {
 }
 
 const MESSAGES: Record<string, string> = {
-  invalid_vehicle_type_name: "The name must be between 1 and 60 characters.",
+  invalid_vehicle_type_name:
+    "The name is required and must be at most 60 characters.",
+  duplicate_vehicle_type_name: "A vehicle type with that name already exists.",
 };
 
 export async function addVehicleType(
