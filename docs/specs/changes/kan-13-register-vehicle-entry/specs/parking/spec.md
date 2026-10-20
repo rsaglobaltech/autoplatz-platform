@@ -4,7 +4,7 @@
 
 ### Requirement: REQ-012 — Entry form fields
 
-<!-- specgate:trace actor=Administrator kind=functional -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=functional -->
 
 The system SHALL display an entry form containing a required license plate
 field, a required vehicle type field selected from the vehicle type catalog,

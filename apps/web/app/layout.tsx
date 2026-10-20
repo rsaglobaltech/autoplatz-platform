@@ -28,6 +28,9 @@ export default function RootLayout({
               <Link href="/catalog" className="hover:underline">
                 Catalog
               </Link>
+              <Link href="/entries/new" className="hover:underline">
+                New entry
+              </Link>
               <UserMenu />
             </div>
           </nav>
