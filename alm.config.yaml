@@ -1,0 +1,23 @@
+# Jira (read-only) and GitHub pull requests. Tokens never live here: only the
+# names of the environment variables that hold them.
+alm_version: 1
+provider: jira
+base_url: https://specgatedemo.atlassian.net
+project_key: KAN
+token_env: JIRA_TOKEN
+user_env: JIRA_USER
+cloud_id: auto
+# Each epic's stories belong to one capability — one bounded context.
+epics:
+  KAN-4: auth
+  KAN-5: parking
+  KAN-6: invoicing
+  KAN-7: subscriptions
+  KAN-8: reporting
+  KAN-9: platform
+  KAN-34: settings
+pr:
+  provider: github
+  repo: rsaglobaltech/autoplatz-platform
+  base: develop
+  token_env: GITHUB_TOKEN

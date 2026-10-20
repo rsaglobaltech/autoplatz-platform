@@ -23,6 +23,6 @@
     "@eslint/js": "^10.0.0",
     "typescript-eslint": "^8.71.1",
     "prettier": "^3.6.2",
-    "@rsaglobaltech/specgate": "^0.20.0"
+    "@rsaglobaltech/specgate": "file:vendor/specgate-ticket-source.tgz"
   }
 }

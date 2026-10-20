@@ -42,8 +42,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+      # The project's own Specgate (its devDependency), so CI and every machine judge the same way.
+      - name: Dependencies
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
       # The specification: requirements, scenarios and traceability. The tests already run in the other jobs.
-      - run: npx -y @rsaglobaltech/specgate@0.20.0 validate . --strict
+      - run: npx specgate validate . --strict
   deploy:
     name: Deploy (Render)
     # Only main, only once everything above passed. Render does not build on its own.
