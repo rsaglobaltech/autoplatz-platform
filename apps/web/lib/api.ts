@@ -1,5 +1,5 @@
 import "server-only";
-import type { Task } from "@autoplatz-platform/shared";
+import type { Task, VehicleType } from "@autoplatz-platform/shared";
 
 /**
  * The API's base URL. In development it defaults to the local API; in
@@ -47,6 +47,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       problem.detail ?? res.statusText,
     );
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -60,5 +61,17 @@ export const api = {
   completeTask: (id: string) =>
     call<Task>(`/api/tasks/${encodeURIComponent(id)}/completion`, {
       method: "POST",
+    }),
+  vehicleTypes: () => call<VehicleType[]>("/api/vehicle-types"),
+  availableVehicleTypes: () =>
+    call<VehicleType[]>("/api/vehicle-types/available"),
+  addVehicleType: (name: string) =>
+    call<VehicleType>("/api/vehicle-types", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
+  deleteVehicleType: (id: string) =>
+    call<void>(`/api/vehicle-types/${encodeURIComponent(id)}`, {
+      method: "DELETE",
     }),
 };
