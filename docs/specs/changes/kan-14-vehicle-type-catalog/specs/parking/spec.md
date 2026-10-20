@@ -4,7 +4,7 @@
 
 ### Requirement: REQ-002 — Default vehicle types on first start
 
-<!-- specgate:trace actor=System kind=functional -->
+<!-- specgate:trace status=Implemented actor=System kind=functional -->
 
 The system SHALL, on first start of a fresh installation, create the vehicle
 types Car, Motorcycle and Van in the catalog, each active.
