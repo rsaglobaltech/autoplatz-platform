@@ -51,6 +51,7 @@ function Field({ field }: { field: EntryFormField }) {
           name={field.name}
           type={type}
           required={field.required}
+          defaultValue={field.value ?? undefined}
           className={INPUT}
         />
       )}

@@ -2,6 +2,7 @@ package com.autoplatz.parking.infrastructure;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,5 +32,14 @@ class EntryFormApiTest {
         .andExpect(jsonPath("$.fields[1].required").value(true))
         .andExpect(jsonPath("$.fields[1].options[*].name", hasItem("Car")))
         .andExpect(jsonPath("$.fields[2].required").value(false));
+  }
+
+  @Test
+  @DisplayName("REQ-013 SCN-023: the entry date/time field comes pre-filled with the current date and time, to the minute")
+  void theEntryDateTimeDefaultsToNow() throws Exception {
+    mvc.perform(get("/api/entries/form")).andExpect(status().isOk())
+        .andExpect(jsonPath("$.fields[3].name").value("enteredAt"))
+        .andExpect(jsonPath("$.fields[3].value", matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")))
+        .andExpect(jsonPath("$.fields[0].value").value((Object) null));
   }
 }

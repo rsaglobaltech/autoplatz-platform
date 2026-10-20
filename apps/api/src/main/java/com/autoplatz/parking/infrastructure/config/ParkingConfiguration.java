@@ -9,6 +9,7 @@ import com.autoplatz.parking.application.OpenEntryForm;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.application.port.VehicleTypeRepository;
+import java.time.Clock;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,8 +38,8 @@ class ParkingConfiguration {
   }
 
   @Bean
-  OpenEntryForm openEntryForm(ListAvailableVehicleTypes listAvailableVehicleTypes) {
-    return new OpenEntryForm(listAvailableVehicleTypes);
+  OpenEntryForm openEntryForm(ListAvailableVehicleTypes listAvailableVehicleTypes, Clock clock) {
+    return new OpenEntryForm(listAvailableVehicleTypes, clock);
   }
 
   @Bean

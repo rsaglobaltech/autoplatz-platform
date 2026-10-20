@@ -23,7 +23,7 @@ an optional owner name field and an entry date/time field.
 
 ### Requirement: REQ-013 — Entry date/time pre-filled
 
-<!-- specgate:trace actor=Administrator kind=functional -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=functional -->
 
 The system SHALL pre-fill the entry date/time field with the current date and
 time when the entry form opens.

@@ -7,6 +7,7 @@ import com.autoplatz.parking.domain.EntryForm;
 import com.autoplatz.parking.domain.EntryFormField;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +25,14 @@ class EntryController {
   }
 
   record EntryFormResponse(List<FieldResponse> fields) {
-    record FieldResponse(String name, boolean required, List<OptionResponse> options) {
+    /** {@code value}: what the field comes pre-filled with, as a local date-time to the minute; null if nothing. */
+    record FieldResponse(String name, boolean required, List<OptionResponse> options, String value) {
+      private static final DateTimeFormatter TO_THE_MINUTE = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
       static FieldResponse of(EntryFormField f) {
         return new FieldResponse(f.name(), f.required(),
-            f.options().stream().map(t -> new OptionResponse(t.id().toString(), t.name().value())).toList());
+            f.options().stream().map(t -> new OptionResponse(t.id().toString(), t.name().value())).toList(),
+            f.prefilledWith() == null ? null : TO_THE_MINUTE.format(f.prefilledWith()));
       }
     }
 
