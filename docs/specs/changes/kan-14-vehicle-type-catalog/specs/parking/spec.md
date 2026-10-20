@@ -38,10 +38,11 @@ available for selection in the entry form.
 
 ### Requirement: REQ-004 — Vehicle type names are unique and not empty
 
-<!-- specgate:trace actor=Administrator kind=business-rule status="Needs Clarification" -->
+<!-- specgate:trace actor=Administrator kind=business-rule -->
 
-The system SHALL reject saving a vehicle type whose name is empty or
-duplicates the name of a type already in the catalog, SHALL return a
+The system SHALL reject saving a vehicle type whose name is empty or made
+only of spaces, or duplicates — ignoring case and surrounding spaces — the
+name of a type already in the catalog, active or not, SHALL return a
 validation message, and SHALL leave the catalog unchanged.
 
 > Ticket: "Given a duplicate or empty name, when I save, then it is rejected with a validation message."
@@ -60,14 +61,22 @@ validation message, and SHALL leave the catalog unchanged.
 - THEN the save is rejected with a validation message stating the name is required
 - AND the catalog still contains exactly "Car", "Motorcycle" and "Van"
 
+#### Scenario: SCN-020 — A duplicate in other case and spaces is rejected
+
+- GIVEN the catalog contains "Car", "Motorcycle" and "Van"
+- WHEN the administrator saves a type named " car "
+- THEN the save is rejected with a validation message stating the name already exists
+- AND the catalog still contains exactly one type named "Car"
+
 ### Requirement: REQ-005 — A type in use is deactivated, not deleted
 
-<!-- specgate:trace actor=Administrator kind=business-rule status="Needs Clarification" -->
+<!-- specgate:trace actor=Administrator kind=business-rule -->
 
 The system SHALL, when an administrator deletes a vehicle type that is used
 by at least one existing entry, deactivate the type instead of deleting it:
 the type SHALL no longer be offered in the entry form, and the existing
-entries SHALL keep showing it in history.
+entries SHALL keep showing it in history. A type no entry uses SHALL be
+removed from the catalog.
 
 > Ticket: "Given a type already used by existing entries, when I try to delete it, then it is deactivated instead of deleted (hidden from the form, kept in history)."
 
@@ -79,3 +88,11 @@ entries SHALL keep showing it in history.
 - THEN "Van" remains in the catalog marked as inactive
 - AND the entry form no longer offers "Van"
 - AND the existing entry still shows the vehicle type "Van" in history
+
+#### Scenario: SCN-021 — Deleting an unused type removes it
+
+- GIVEN the catalog contains the active type "Truck"
+- AND no entry has the vehicle type "Truck"
+- WHEN the administrator deletes the type "Truck"
+- THEN the catalog no longer contains "Truck"
+- AND the entry form no longer offers "Truck"
