@@ -2,6 +2,9 @@ package com.autoplatz.parking.infrastructure.web;
 
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListEntryHistory.EntryInHistory;
+import com.autoplatz.parking.application.OpenEntryForm;
+import com.autoplatz.parking.domain.EntryForm;
+import com.autoplatz.parking.domain.EntryFormField;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -20,15 +23,38 @@ class EntryController {
     }
   }
 
-  private final ListEntryHistory listEntryHistory;
+  record EntryFormResponse(List<FieldResponse> fields) {
+    record FieldResponse(String name, boolean required, List<OptionResponse> options) {
+      static FieldResponse of(EntryFormField f) {
+        return new FieldResponse(f.name(), f.required(),
+            f.options().stream().map(t -> new OptionResponse(t.id().toString(), t.name().value())).toList());
+      }
+    }
 
-  EntryController(ListEntryHistory listEntryHistory) {
+    record OptionResponse(String id, String name) {}
+
+    static EntryFormResponse of(EntryForm form) {
+      return new EntryFormResponse(form.fields().stream().map(FieldResponse::of).toList());
+    }
+  }
+
+  private final ListEntryHistory listEntryHistory;
+  private final OpenEntryForm openEntryForm;
+
+  EntryController(ListEntryHistory listEntryHistory, OpenEntryForm openEntryForm) {
     this.listEntryHistory = listEntryHistory;
+    this.openEntryForm = openEntryForm;
   }
 
   @GetMapping
   @Operation(summary = "The entry history, each entry with its vehicle type, active or not")
   List<EntryResponse> history() {
     return listEntryHistory.execute().stream().map(EntryResponse::of).toList();
+  }
+
+  @GetMapping("/form")
+  @Operation(summary = "The entry form: its fields, which are required, and the vehicle types it offers")
+  EntryFormResponse form() {
+    return EntryFormResponse.of(openEntryForm.execute());
   }
 }

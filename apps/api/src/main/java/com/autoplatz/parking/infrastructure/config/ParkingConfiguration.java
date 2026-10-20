@@ -5,6 +5,7 @@ import com.autoplatz.parking.application.DeleteVehicleType;
 import com.autoplatz.parking.application.ListAvailableVehicleTypes;
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListVehicleTypes;
+import com.autoplatz.parking.application.OpenEntryForm;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.application.port.VehicleTypeRepository;
@@ -33,6 +34,11 @@ class ParkingConfiguration {
   @Bean
   ListAvailableVehicleTypes listAvailableVehicleTypes(VehicleTypeRepository types) {
     return new ListAvailableVehicleTypes(types);
+  }
+
+  @Bean
+  OpenEntryForm openEntryForm(ListAvailableVehicleTypes listAvailableVehicleTypes) {
+    return new OpenEntryForm(listAvailableVehicleTypes);
   }
 
   @Bean

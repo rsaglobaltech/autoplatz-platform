@@ -1,5 +1,9 @@
 import "server-only";
-import type { Task, VehicleType } from "@autoplatz-platform/shared";
+import type {
+  EntryForm,
+  Task,
+  VehicleType,
+} from "@autoplatz-platform/shared";
 
 /**
  * The API's base URL. In development it defaults to the local API; in
@@ -74,4 +78,5 @@ export const api = {
     call<void>(`/api/vehicle-types/${encodeURIComponent(id)}`, {
       method: "DELETE",
     }),
+  entryForm: () => call<EntryForm>("/api/entries/form"),
 };
