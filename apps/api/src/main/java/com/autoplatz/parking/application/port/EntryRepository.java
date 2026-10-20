@@ -11,6 +11,9 @@ public interface EntryRepository {
 
   List<Entry> findAll();
 
+  /** The open entries, those still inside: the vehicles currently in the garage (REQ-017). */
+  List<Entry> findInside();
+
   /** Whether at least one existing entry has that vehicle type (REQ-005). */
   boolean anyWithVehicleType(VehicleTypeId type);
 

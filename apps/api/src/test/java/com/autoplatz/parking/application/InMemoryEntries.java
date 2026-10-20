@@ -20,6 +20,9 @@ class InMemoryEntries implements EntryRepository {
   public List<Entry> findAll() { return List.copyOf(entries.values()); }
 
   @Override
+  public List<Entry> findInside() { return entries.values().stream().filter(Entry::isOpen).toList(); }
+
+  @Override
   public boolean anyWithVehicleType(VehicleTypeId type) {
     return entries.values().stream().anyMatch(e -> e.vehicleType().equals(type));
   }

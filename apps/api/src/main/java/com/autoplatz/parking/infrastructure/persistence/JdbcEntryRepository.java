@@ -46,6 +46,12 @@ class JdbcEntryRepository implements EntryRepository {
   }
 
   @Override
+  public List<Entry> findInside() {
+    return jdbc.sql("SELECT * FROM parking_entry WHERE status = :inside ORDER BY license_plate, id")
+        .param("inside", EntryStatus.INSIDE.value()).query(JdbcEntryRepository::row).list();
+  }
+
+  @Override
   public boolean anyWithVehicleType(VehicleTypeId type) {
     return jdbc.sql("SELECT EXISTS (SELECT 1 FROM parking_entry WHERE vehicle_type_id = :type)")
         .param("type", type.value()).query(Boolean.class).single();
