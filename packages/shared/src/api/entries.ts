@@ -11,7 +11,10 @@ export interface EntryFormField {
   value: string | null;
 }
 
-/** What POST /api/entries takes (RegisterEntryRequest). */
+/**
+ * What POST /api/entries takes (RegisterEntryRequest). Either may be empty: the API then answers 422
+ * `missing_required_fields`, with `fields` naming each missing form field (REQ-015).
+ */
 export interface RegisterEntryRequest {
   licensePlate: string;
   vehicleTypeId: string;

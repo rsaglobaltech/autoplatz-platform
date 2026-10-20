@@ -7,4 +7,7 @@ public record LicensePlate(String value) {
   public LicensePlate {
     value = value == null ? "" : value.replaceAll("[\\s\\p{Z}]", "").toUpperCase(Locale.ROOT);
   }
+
+  /** Nothing was typed, or only spaces. */
+  public boolean isEmpty() { return value.isEmpty(); }
 }

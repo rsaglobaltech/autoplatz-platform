@@ -54,7 +54,7 @@ all spaces removed.
 
 ### Requirement: REQ-015 — Required fields
 
-<!-- specgate:trace actor=Administrator kind=business-rule -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=business-rule -->
 
 The system SHALL NOT save a vehicle entry while a required field (license
 plate or vehicle type) is empty, and SHALL highlight each missing required

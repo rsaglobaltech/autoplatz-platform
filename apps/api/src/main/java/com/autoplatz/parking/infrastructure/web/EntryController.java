@@ -12,7 +12,6 @@ import com.autoplatz.parking.domain.VehicleTypeId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,8 @@ class EntryController {
     }
   }
 
-  record RegisterEntryRequest(@NotNull String licensePlate, @NotNull String vehicleTypeId) {}
+  /** Either may be empty or absent: the entry then is not saved, and the response names what is missing (REQ-015). */
+  record RegisterEntryRequest(String licensePlate, String vehicleTypeId) {}
 
   record RegisteredEntryResponse(String id, String licensePlate, String vehicleTypeId) {
     static RegisteredEntryResponse of(Entry e) {
@@ -90,7 +90,7 @@ class EntryController {
   @Operation(summary = "Save a vehicle entry; its license plate is stored uppercase without spaces")
   RegisteredEntryResponse register(@Valid @RequestBody RegisterEntryRequest request) {
     return RegisteredEntryResponse.of(
-        registerEntry.execute(request.licensePlate(), VehicleTypeId.of(request.vehicleTypeId())));
+        registerEntry.execute(request.licensePlate(), VehicleTypeId.ofPicked(request.vehicleTypeId())));
   }
 
   private static String plateOf(LicensePlate plate) {
