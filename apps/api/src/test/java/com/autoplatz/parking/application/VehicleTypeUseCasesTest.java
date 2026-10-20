@@ -3,7 +3,9 @@ package com.autoplatz.parking.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.autoplatz.parking.domain.Entry;
 import com.autoplatz.parking.domain.VehicleType;
+import com.autoplatz.parking.domain.VehicleTypeId;
 import com.autoplatz.parking.domain.VehicleTypeName;
 import com.autoplatz.shared.domain.DomainException;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class VehicleTypeUseCasesTest {
   private final InMemoryVehicleTypes types = new InMemoryVehicleTypes();
+  private final InMemoryEntries entries = new InMemoryEntries();
 
   @Test
   @DisplayName("REQ-002 SCN-002: a fresh installation seeds Car, Motorcycle and Van, active and in the entry form")
@@ -112,6 +115,48 @@ class VehicleTypeUseCasesTest {
     assertThatThrownBy(() -> new AddVehicleType(types).execute("VAN"))
         .isInstanceOf(DomainException.class).hasFieldOrPropertyWithValue("code", "duplicate_vehicle_type_name");
     assertThat(new ListVehicleTypes(types).execute()).hasSize(1);
+  }
+
+  @Test
+  @DisplayName("REQ-005 SCN-006: deleting a type in use deactivates it, the form hides it, the history keeps it")
+  void deletingAUsedTypeDeactivatesIt() {
+    VehicleType van = new AddVehicleType(types).execute("Van");
+    Entry entry = Entry.create(van.id());
+    entries.save(entry);
+
+    new DeleteVehicleType(types, entries).execute(van.id().toString());
+
+    assertThat(new ListVehicleTypes(types).execute())
+        .filteredOn(t -> t.name().value().equals("Van")).singleElement().matches(t -> !t.active());
+    assertThat(new ListAvailableVehicleTypes(types).execute()).extracting(t -> t.name().value()).doesNotContain("Van");
+    assertThat(new ListEntryHistory(entries, types).execute())
+        .singleElement().satisfies(e -> {
+          assertThat(e.entry()).isEqualTo(entry);
+          assertThat(e.vehicleType().name().value()).isEqualTo("Van");
+        });
+  }
+
+  @Test
+  @DisplayName("REQ-005 SCN-021: deleting a type no entry uses removes it from the catalog and the form")
+  void deletingAnUnusedTypeRemovesIt() {
+    new SeedDefaultVehicleTypes(types).execute();
+    VehicleType truck = new AddVehicleType(types).execute("Truck");
+
+    new DeleteVehicleType(types, entries).execute(truck.id().toString());
+
+    assertThat(new ListVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactly("Car", "Motorcycle", "Van");
+    assertThat(new ListAvailableVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactly("Car", "Motorcycle", "Van");
+  }
+
+  @Test
+  @DisplayName("REQ-005: deleting a type that does not exist is not found")
+  void deletingAnUnknownTypeIsNotFound() {
+    assertThatThrownBy(() -> new DeleteVehicleType(types, entries).execute(VehicleTypeId.random().toString()))
+        .isInstanceOf(DomainException.class).hasFieldOrPropertyWithValue("code", "vehicle_type_not_found");
+    assertThatThrownBy(() -> new DeleteVehicleType(types, entries).execute("not-a-uuid"))
+        .isInstanceOf(DomainException.class).hasFieldOrPropertyWithValue("code", "vehicle_type_not_found");
   }
 
   @Test

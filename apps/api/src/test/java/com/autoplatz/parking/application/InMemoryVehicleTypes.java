@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /** Test double for the port: use cases are tested without Spring or a database. */
 class InMemoryVehicleTypes implements VehicleTypeRepository {
@@ -19,4 +20,10 @@ class InMemoryVehicleTypes implements VehicleTypeRepository {
   public List<VehicleType> findAll() {
     return types.values().stream().sorted(Comparator.comparing(t -> t.name().value())).toList();
   }
+
+  @Override
+  public Optional<VehicleType> findById(VehicleTypeId id) { return Optional.ofNullable(types.get(id)); }
+
+  @Override
+  public void delete(VehicleTypeId id) { types.remove(id); }
 }

@@ -47,6 +47,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       problem.detail ?? res.statusText,
     );
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -68,5 +69,9 @@ export const api = {
     call<VehicleType>("/api/vehicle-types", {
       method: "POST",
       body: JSON.stringify({ name }),
+    }),
+  deleteVehicleType: (id: string) =>
+    call<void>(`/api/vehicle-types/${encodeURIComponent(id)}`, {
+      method: "DELETE",
     }),
 };

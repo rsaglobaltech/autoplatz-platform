@@ -1,9 +1,12 @@
 package com.autoplatz.parking.infrastructure.config;
 
 import com.autoplatz.parking.application.AddVehicleType;
+import com.autoplatz.parking.application.DeleteVehicleType;
 import com.autoplatz.parking.application.ListAvailableVehicleTypes;
+import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListVehicleTypes;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
+import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.application.port.VehicleTypeRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +33,16 @@ class ParkingConfiguration {
   @Bean
   ListAvailableVehicleTypes listAvailableVehicleTypes(VehicleTypeRepository types) {
     return new ListAvailableVehicleTypes(types);
+  }
+
+  @Bean
+  DeleteVehicleType deleteVehicleType(VehicleTypeRepository types, EntryRepository entries) {
+    return new DeleteVehicleType(types, entries);
+  }
+
+  @Bean
+  ListEntryHistory listEntryHistory(EntryRepository entries, VehicleTypeRepository types) {
+    return new ListEntryHistory(entries, types);
   }
 
   /** Runs the seeding use case when the system starts; what it seeds is the use case's business. */
