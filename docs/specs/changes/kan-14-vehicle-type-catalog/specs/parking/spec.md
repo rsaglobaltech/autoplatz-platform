@@ -38,7 +38,7 @@ available for selection in the entry form.
 
 ### Requirement: REQ-004 — Vehicle type names are unique and not empty
 
-<!-- specgate:trace actor=Administrator kind=business-rule -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=business-rule -->
 
 The system SHALL reject saving a vehicle type whose name is empty or made
 only of spaces, or duplicates — ignoring case and surrounding spaces — the

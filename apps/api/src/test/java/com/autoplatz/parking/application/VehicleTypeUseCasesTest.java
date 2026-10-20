@@ -69,6 +69,52 @@ class VehicleTypeUseCasesTest {
   }
 
   @Test
+  @DisplayName("REQ-004 SCN-004: a duplicate name is rejected and the catalog keeps one Car")
+  void aDuplicateNameIsRejected() {
+    new SeedDefaultVehicleTypes(types).execute();
+
+    assertThatThrownBy(() -> new AddVehicleType(types).execute("Car"))
+        .isInstanceOf(DomainException.class).hasMessageContaining("already exists")
+        .hasFieldOrPropertyWithValue("code", "duplicate_vehicle_type_name");
+    assertThat(new ListVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactly("Car", "Motorcycle", "Van");
+  }
+
+  @Test
+  @DisplayName("REQ-004 SCN-005: an empty name is rejected as required and the catalog is unchanged")
+  void anEmptyNameIsRejectedAsRequired() {
+    new SeedDefaultVehicleTypes(types).execute();
+
+    assertThatThrownBy(() -> new AddVehicleType(types).execute(""))
+        .isInstanceOf(DomainException.class).hasMessageContaining("required")
+        .hasFieldOrPropertyWithValue("code", "invalid_vehicle_type_name");
+    assertThat(new ListVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactly("Car", "Motorcycle", "Van");
+  }
+
+  @Test
+  @DisplayName("REQ-004 SCN-020: a duplicate in other case and surrounding spaces is rejected")
+  void aDuplicateInOtherCaseAndSpacesIsRejected() {
+    new SeedDefaultVehicleTypes(types).execute();
+
+    assertThatThrownBy(() -> new AddVehicleType(types).execute(" car "))
+        .isInstanceOf(DomainException.class).hasMessageContaining("already exists")
+        .hasFieldOrPropertyWithValue("code", "duplicate_vehicle_type_name");
+    assertThat(new ListVehicleTypes(types).execute())
+        .extracting(t -> t.name().value()).containsExactly("Car", "Motorcycle", "Van");
+  }
+
+  @Test
+  @DisplayName("REQ-004: the name of a deactivated type stays taken")
+  void theNameOfAnInactiveTypeStaysTaken() {
+    types.save(VehicleType.create(new VehicleTypeName("Van")).deactivate());
+
+    assertThatThrownBy(() -> new AddVehicleType(types).execute("VAN"))
+        .isInstanceOf(DomainException.class).hasFieldOrPropertyWithValue("code", "duplicate_vehicle_type_name");
+    assertThat(new ListVehicleTypes(types).execute()).hasSize(1);
+  }
+
+  @Test
   @DisplayName("REQ-002: the entry form offers only active types")
   void theEntryFormOffersOnlyActiveTypes() {
     types.save(VehicleType.create(new VehicleTypeName("Car")));

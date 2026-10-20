@@ -2,6 +2,9 @@ package com.autoplatz.parking.infrastructure;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,5 +53,22 @@ class AddVehicleTypeApiTest {
   void anEmptyNameIsRejected() throws Exception {
     mvc.perform(post("/api/vehicle-types").contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"  \"}"))
         .andExpect(status().isUnprocessableContent()).andExpect(jsonPath("$.code").value("invalid_vehicle_type_name"));
+  }
+
+  @Test
+  @DisplayName("REQ-004 SCN-004 SCN-005 SCN-020: a duplicate or empty name is rejected and the catalog is unchanged")
+  void aDuplicateOrEmptyNameIsRejected() throws Exception {
+    mvc.perform(post("/api/vehicle-types").contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"Car\"}"))
+        .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("duplicate_vehicle_type_name"))
+        .andExpect(jsonPath("$.detail", containsString("already exists")));
+    mvc.perform(post("/api/vehicle-types").contentType(MediaType.APPLICATION_JSON).content("{\"name\":\" car \"}"))
+        .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("duplicate_vehicle_type_name"));
+    mvc.perform(post("/api/vehicle-types").contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"\"}"))
+        .andExpect(status().isUnprocessableContent()).andExpect(jsonPath("$.code").value("invalid_vehicle_type_name"))
+        .andExpect(jsonPath("$.detail", containsString("required")));
+
+    mvc.perform(get("/api/vehicle-types")).andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.name == 'Car')]", hasSize(1)))
+        .andExpect(jsonPath("$[*].name", hasItems("Car", "Motorcycle", "Van")));
   }
 }
