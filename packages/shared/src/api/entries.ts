@@ -10,3 +10,16 @@ export interface EntryFormField {
   /** What the field comes pre-filled with (entry date/time: `YYYY-MM-DDTHH:mm`), or null. */
   value: string | null;
 }
+
+/** What POST /api/entries takes (RegisterEntryRequest). */
+export interface RegisterEntryRequest {
+  licensePlate: string;
+  vehicleTypeId: string;
+}
+
+/** What POST /api/entries returns (RegisteredEntryResponse): the plate as stored, uppercase without spaces. */
+export interface RegisteredEntry {
+  id: string;
+  licensePlate: string;
+  vehicleTypeId: string;
+}

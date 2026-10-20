@@ -6,6 +6,7 @@ import com.autoplatz.parking.application.ListAvailableVehicleTypes;
 import com.autoplatz.parking.application.ListEntryHistory;
 import com.autoplatz.parking.application.ListVehicleTypes;
 import com.autoplatz.parking.application.OpenEntryForm;
+import com.autoplatz.parking.application.RegisterEntry;
 import com.autoplatz.parking.application.SeedDefaultVehicleTypes;
 import com.autoplatz.parking.application.port.EntryRepository;
 import com.autoplatz.parking.application.port.VehicleTypeRepository;
@@ -40,6 +41,11 @@ class ParkingConfiguration {
   @Bean
   OpenEntryForm openEntryForm(ListAvailableVehicleTypes listAvailableVehicleTypes, Clock clock) {
     return new OpenEntryForm(listAvailableVehicleTypes, clock);
+  }
+
+  @Bean
+  RegisterEntry registerEntry(EntryRepository entries) {
+    return new RegisterEntry(entries);
   }
 
   @Bean

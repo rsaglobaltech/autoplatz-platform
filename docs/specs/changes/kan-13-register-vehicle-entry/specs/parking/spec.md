@@ -38,7 +38,7 @@ time when the entry form opens.
 
 ### Requirement: REQ-014 — License plate normalization
 
-<!-- specgate:trace actor=Administrator kind=business-rule -->
+<!-- specgate:trace status=Implemented actor=Administrator kind=business-rule -->
 
 The system SHALL store the license plate of a vehicle entry in uppercase with
 all spaces removed.
